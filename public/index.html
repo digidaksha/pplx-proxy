@@ -215,9 +215,16 @@ function saveState() {
 
 // ── API CALLS ─────────────────────────────────────────────────────────────────
 async function callClaude(system, content) {
+  // Use smaller max_tokens per call to avoid timeout
   const res = await fetch('/api/proxy', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ service:'claude', model:'claude-sonnet-4-20250514', max_tokens:4000, system, messages:[{role:'user',content}] })
+    body: JSON.stringify({ 
+      service:'claude', 
+      model:'claude-haiku-4-5-20251001', // faster, cheaper model
+      max_tokens:2000, 
+      system, 
+      messages:[{role:'user',content}] 
+    })
   });
   const data = await res.json();
   if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
