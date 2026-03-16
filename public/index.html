@@ -326,9 +326,11 @@ async function runAudit() {
       messaging_differentiation_score: scoreMatch(aiText, 'Messaging Differentiation'),
       human_voice_score: scoreMatch(aiText, 'Human Voice Presence'),
       brand_personality_classification: (() => {
-        if (aiText.includes('Human-Led Brand')) return 'Human-Led Brand';
-        if (aiText.includes('Hybrid Brand')) return 'Hybrid Brand (AI + Human)';
-        if (aiText.includes('AI-Generated Brand')) return 'AI-Generated Brand';
+        const classMatch = aiText.match(/CLASSIFICATION:\s*(Human-Led Brand|Hybrid Brand \(AI \+ Human\)|AI-Generated Brand)/i);
+        if (classMatch) return classMatch[1];
+        if (aiText.includes('Human-Led')) return 'Human-Led Brand';
+        if (aiText.includes('Hybrid')) return 'Hybrid Brand (AI + Human)';
+        if (aiText.includes('AI-Generated')) return 'AI-Generated Brand';
         return 'Hybrid Brand (AI + Human)';
       })(),
       strategic_risk_level: auditText.toLowerCase().includes('high risk') ? 'High' : auditText.toLowerCase().includes('low risk') ? 'Low' : 'Moderate',
