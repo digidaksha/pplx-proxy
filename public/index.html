@@ -93,8 +93,8 @@
 <script>
 // ── STATE ─────────────────────────────────────────────────────────────────────
 const state = {
-  view: 'setup', // setup | form | results | database
-  pplxKey: localStorage.getItem('pplx_key') || '',
+  view: 'form', // form | results | database
+  pplxKey: 'server',
   form: { brandName:'', website:'', instagram:'', products:'', market:'', priceRange:'', notes:'' },
   images: { grid: null, homepage: null },
   previews: { grid: null, homepage: null },
@@ -116,7 +116,7 @@ const state = {
   expandedAudit: null,
 };
 
-if (state.pplxKey) state.view = 'form';
+
 
 // ── PROMPTS ───────────────────────────────────────────────────────────────────
 const AUDIT_PROMPT = `You are a brand growth strategist and revenue auditor. Identify strategic weaknesses, positioning gaps, and revenue leaks. Write in a sharp, founder-facing tone. No jargon.
@@ -215,11 +215,12 @@ function saveState() {
 
 // ── API CALLS ─────────────────────────────────────────────────────────────────
 async function callClaude(system, content) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch('/api/proxy', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:4000, system, messages:[{role:'user',content}] })
+    body: JSON.stringify({ service:'claude', model:'claude-sonnet-4-20250514', max_tokens:4000, system, messages:[{role:'user',content}] })
   });
   const data = await res.json();
+  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
   return data.content?.map(b=>b.text||'').join('\n') || '';
 }
 
@@ -335,12 +336,12 @@ function buildTopbar() {
     <div class="topbar-left">
       <span class="topbar-title">Brand Audit</span>
       <span class="topbar-sub">Revenue · Growth · AI Diagnostics</span>
-      ${state.pplxKey&&state.pplxKey!=='SKIP'?'<span class="badge">Perplexity ON</span>':''}
+      <span class="badge">Perplexity ON</span>
     </div>
     <div style="display:flex;gap:8px">
       ${state.view!=='form'?'<button class="btn-ghost" onclick="go(\'form\')">New Audit</button>':''}
       <button class="btn-ghost ${state.view==='database'?'active':''}" onclick="go(\'database\')" style="${state.view==='database'?'background:#fff;color:#000':''}">Intelligence DB</button>
-      <button class="btn-ghost" onclick="go(\'setup\')">API Key</button>
+      <button class="btn-ghost" onclick="testConnection()">Test API</button>
     </div>
   </div>`;
 }
@@ -376,7 +377,7 @@ function buildForm() {
   const f = state.form;
   return `
     <div class="page-title">New Audit</div>
-    <p class="page-sub">${state.pplxKey&&state.pplxKey!=='SKIP'?'Perplexity will research the brand live. Add screenshots for Instagram analysis.':'Running on screenshots + manual inputs.'}</p>
+    <p class="page-sub">Perplexity will research the brand live. Add screenshots for Instagram analysis.</p>
     <div class="grid2">
       <div class="full field"><div class="label">Brand Name *</div><input class="input" placeholder="e.g. Mitti Se" value="${f.brandName}" oninput="state.form.brandName=this.value"/></div>
       <div class="field"><div class="label">Website URL</div><input class="input" placeholder="https://brandname.com" value="${f.website}" oninput="state.form.website=this.value"/></div>
@@ -649,7 +650,27 @@ window.testKey = async () => {
   } catch(e) { state.keyStatus = '✗ Connection failed: '+e.message; }
   render();
 };
-window.runAudit = runAudit;
+window.testConnection = async () => {
+  const btn = document.querySelector('[onclick="testConnection()"]');
+  if (btn) { btn.textContent = 'Testing…'; btn.disabled = true; }
+  try {
+    const res = await fetch('/api/proxy', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'sonar', max_tokens:30, messages:[{role:'user',content:'Reply: API connection successful'}] })
+    });
+    const data = await res.json();
+    if (data.choices?.[0]?.message?.content) {
+      alert('✓ Perplexity connected and working!');
+    } else if (data.error) {
+      alert('✗ Perplexity error: '+(data.error.message||JSON.stringify(data.error)));
+    } else {
+      alert('✗ Unexpected response: '+JSON.stringify(data).slice(0,120));
+    }
+  } catch(e) {
+    alert('✗ Proxy failed: '+e.message);
+  }
+  if (btn) { btn.textContent = 'Test API'; btn.disabled = false; }
+};
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 render();
