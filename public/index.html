@@ -325,19 +325,34 @@ async function runAudit() {
       visual_authenticity_score: scoreMatch(aiText, 'Visual Authenticity'),
       messaging_differentiation_score: scoreMatch(aiText, 'Messaging Differentiation'),
       human_voice_score: scoreMatch(aiText, 'Human Voice Presence'),
-      brand_personality_classification: (aiText.match(/(?:classify(?:ication)?[:\s]+|classification[:\s]*\n+)(Human-Led Brand|Hybrid Brand \(AI \+ Human\)|AI-Generated Brand)/i) || aiText.match(/\b(Human-Led Brand|Hybrid Brand \(AI \+ Human\)|AI-Generated Brand)\b/))?.[1] || 'Hybrid Brand (AI + Human)',
+      brand_personality_classification: (() => {
+        if (aiText.includes('Human-Led Brand')) return 'Human-Led Brand';
+        if (aiText.includes('Hybrid Brand')) return 'Hybrid Brand (AI + Human)';
+        if (aiText.includes('AI-Generated Brand')) return 'AI-Generated Brand';
+        return 'Hybrid Brand (AI + Human)';
+      })(),
       strategic_risk_level: auditText.toLowerCase().includes('high risk') ? 'High' : auditText.toLowerCase().includes('low risk') ? 'Low' : 'Moderate',
       key_weaknesses: (auditText.match(/\*\*LEAK:\*\*\s*([^\n*]+)/g) || []).slice(0,3).map(l => l.replace('**LEAK:**','').trim()),
-      key_strengths: (auditText.match(/(?:strength|strong|well[- ]done|doing well)[:\s]+([^\n.]+)/gi) || []).slice(0,3).map(s => s.replace(/^[^:]+:\s*/,'').trim()),
+      key_strengths: (() => {
+        const snapshotMatch = auditText.match(/## 1\. BRAND SNAPSHOT([\s\S]*?)(?=## 2\.)/);
+        const snapshot = snapshotMatch ? snapshotMatch[1] : auditText;
+        const bullets = snapshot.match(/[-•*]\s+([^\n]+)/g) || [];
+        return bullets.slice(0,3).map(b => b.replace(/^[-•*]\s+/,'').trim());
+      })(),
       messaging_style: auditText.toLowerCase().includes('aspirational') ? 'Aspirational lifestyle messaging' : auditText.toLowerCase().includes('discount') ? 'Discount-driven messaging' : 'Functional product benefits',
       narrative_presence: aiText.match(/(?:strong|weak|no) (?:founder |brand )?narrative/i)?.[0] || 'Weak narrative',
       visual_identity_style: aiText.toLowerCase().includes('template') ? 'Template-driven design' : aiText.toLowerCase().includes('distinctive') ? 'Distinctive brand system' : 'Generic stock aesthetic',
       audit_date: new Date().toISOString().split('T')[0],
     };
 
-    state.fullAudits[state.form.brandName] = { auditText, aiText, savedAt: new Date().toISOString() };
-    state.db.push(record);
-    saveState();
+    // Only save if brand name exists
+    if (record.brand_name) {
+      state.fullAudits[state.form.brandName] = { auditText, aiText, savedAt: new Date().toISOString() };
+      // Remove any existing record for this brand before saving
+      state.db = state.db.filter(r => r.brand_name && r.brand_name !== record.brand_name);
+      state.db.push(record);
+      saveState();
+    }
 
     state.auditSections = parseSections(auditText);
     state.aiSections = parseSections(aiText);
@@ -537,9 +552,12 @@ function buildDatabase() {
   const exp = state.expandedAudit;
 
   return `
-    <div style="margin-bottom:32px">
-      <div class="page-title">Brand Intelligence DB</div>
-      <div style="font-size:13px;color:#444">${records.length} brand${records.length!==1?'s':''} analyzed</div>
+    <div style="margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div class="page-title">Brand Intelligence DB</div>
+        <div style="font-size:13px;color:#444">${records.length} brand${records.length!==1?'s':''} analyzed</div>
+      </div>
+      <button class="btn-ghost" onclick="clearGhosts()" style="font-size:10px">Clean DB</button>
     </div>
     ${records.length===0?`<div class="card" style="text-align:center;padding:60px"><div style="font-size:13px;color:#444">No audits yet. Run your first audit to populate the database.</div></div>`:`
     <div class="card" style="margin-bottom:24px">
