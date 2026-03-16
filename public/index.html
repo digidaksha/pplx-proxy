@@ -215,13 +215,12 @@ function saveState() {
 
 // ── API CALLS ─────────────────────────────────────────────────────────────────
 async function callClaude(system, content) {
-  // Use smaller max_tokens per call to avoid timeout
   const res = await fetch('/api/proxy', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ 
       service:'claude', 
-      model:'claude-haiku-4-5-20251001', // faster, cheaper model
-      max_tokens:2000, 
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:3000, 
       system, 
       messages:[{role:'user',content}] 
     })
@@ -301,10 +300,37 @@ async function runAudit() {
     ]);
 
     state.loadingMsg = 'Generating audit record…'; render();
-    const combined = `Brand: ${state.form.brandName}\n${pplxResearch?`Research:\n${pplxResearch}\n`:''}Revenue Audit:\n${auditText}\nAI Diagnostic:\n${aiText}`;
-    const recText = await callClaude(RECORD_PROMPT, combined);
-    let record = {};
-    try { record = JSON.parse(recText.replace(/```json|```/g,'').trim()); } catch {}
+    // Build record from already-returned data without extra API call
+    const scoreMatch = (text, label) => {
+      const m = text.match(new RegExp(label + '[^\\d]*(\\d+)\\s*\\/\\s*100', 'i'));
+      return m ? parseInt(m[1]) : 0;
+    };
+    const record = {
+      brand_name: state.form.brandName,
+      website: state.form.website,
+      instagram: state.form.instagram,
+      industry_category: state.form.products || 'Consumer Brand',
+      business_model: 'D2C',
+      revenue_stage: 'Growth Stage',
+      primary_product: state.form.products || '',
+      target_audience: state.form.market || '',
+      competitors: [],
+      brand_distinctiveness_score: scoreMatch(aiText, 'Brand Distinctiveness'),
+      ai_dependency_score: scoreMatch(aiText, 'AI Dependency'),
+      language_genericness_score: scoreMatch(aiText, 'Language Genericness'),
+      narrative_originality_score: scoreMatch(aiText, 'Narrative Originality'),
+      visual_authenticity_score: scoreMatch(aiText, 'Visual Authenticity'),
+      messaging_differentiation_score: scoreMatch(aiText, 'Messaging Differentiation'),
+      human_voice_score: scoreMatch(aiText, 'Human Voice Presence'),
+      brand_personality_classification: aiText.match(/Human-Led Brand|Hybrid Brand \(AI \+ Human\)|AI-Generated Brand/)?.[0] || '',
+      strategic_risk_level: auditText.toLowerCase().includes('high risk') ? 'High' : auditText.toLowerCase().includes('low risk') ? 'Low' : 'Moderate',
+      key_weaknesses: (auditText.match(/\*\*LEAK:\*\*\s*([^\n]+)/g) || []).slice(0,3).map(l => l.replace('**LEAK:**','').trim()),
+      key_strengths: [],
+      messaging_style: '',
+      narrative_presence: aiText.includes('Strong') ? 'Strong founder narrative' : aiText.includes('Weak') ? 'Weak narrative' : 'No narrative detected',
+      visual_identity_style: aiText.includes('template') ? 'Template-driven design' : 'Distinctive brand system',
+      audit_date: new Date().toISOString().split('T')[0],
+    };
 
     state.fullAudits[state.form.brandName] = { auditText, aiText, savedAt: new Date().toISOString() };
     state.db.push(record);
