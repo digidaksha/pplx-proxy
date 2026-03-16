@@ -162,20 +162,22 @@ const AUDIT_LABELS = ['Snapshot','Positioning','Gap','Content','Rev. Leaks','Beh
 const AI_LABELS = ['Language','Narrative','Visual','Messaging','Human Voice','AI Score','Classification','Distinctiveness','Risks','Fix'];
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function scoreColor(n) {
+function scoreColor(n, invert = false) {
   n = parseInt(n);
+  if (invert) return n >= 71 ? '#f87171' : n >= 51 ? '#fb923c' : n >= 31 ? '#facc15' : '#4ade80';
   return n >= 71 ? '#4ade80' : n >= 51 ? '#facc15' : n >= 31 ? '#fb923c' : '#f87171';
 }
 function riskColor(r) { return r==='Low'?'#4ade80':r==='Moderate'?'#facc15':'#f87171'; }
 function classColor(c='') { return c.includes('Human')&&!c.includes('Hybrid')?'#4ade80':c.includes('Hybrid')?'#facc15':'#f87171'; }
 
 function parseSections(text) {
-  // Remove any title lines before the first ## header
-  const cleaned = text.replace(/^[^#]*(?=## )/s, '').trim();
-  const sections = cleaned.split(/(?=## \d+\.|## D\d+\.|## AI |## BRAND |## KEY |## STRATEGIC )/).filter(s=>s.trim());
-  return sections.map(s=>{
-    const lines = s.trim().split('\n');
-    return { header: lines[0].replace(/^##\s*/,'').trim(), body: lines.slice(1).join('\n').trim() };
+  // Strip any lines starting with single # (title lines) before first ## section
+  const lines = text.split('\n');
+  const firstDoubleHash = lines.findIndex(l => l.match(/^## /));
+  const cleaned = firstDoubleHash >= 0 ? lines.slice(firstDoubleHash).join('\n') : text;
+  return cleaned.split(/(?=^## )/m).filter(s => s.trim()).map(s => {
+    const sLines = s.trim().split('\n');
+    return { header: sLines[0].replace(/^##\s*/, '').trim(), body: sLines.slice(1).join('\n').trim() };
   });
 }
 
@@ -223,7 +225,7 @@ async function callClaude(system, content) {
     body: JSON.stringify({ 
       service:'claude', 
       model:'claude-haiku-4-5-20251001',
-      max_tokens:3000, 
+      max_tokens:4000, 
       system, 
       messages:[{role:'user',content}] 
     })
@@ -526,8 +528,8 @@ function buildRecord(r) {
     <div>
       <div class="card">
         <div class="card-title">Scores</div>
-        ${[['Brand Distinctiveness',r.brand_distinctiveness_score],['AI Dependency',r.ai_dependency_score],['Language Genericness',r.language_genericness_score],['Narrative Originality',r.narrative_originality_score],['Visual Authenticity',r.visual_authenticity_score],['Messaging Differentiation',r.messaging_differentiation_score],['Human Voice Presence',r.human_voice_score]].map(([l,v])=>`
-        <div class="score-row"><span class="score-label">${l}</span><span class="score-val" style="color:${v?scoreColor(v):'#333'}">${v?v+' / 100':'—'}</span></div>`).join('')}
+        ${[['Brand Distinctiveness',r.brand_distinctiveness_score,false],['AI Dependency',r.ai_dependency_score,true],['Language Genericness',r.language_genericness_score,true],['Narrative Originality',r.narrative_originality_score,false],['Visual Authenticity',r.visual_authenticity_score,false],['Messaging Differentiation',r.messaging_differentiation_score,false],['Human Voice Presence',r.human_voice_score,false]].map(([l,v,inv])=>`
+        <div class="score-row"><span class="score-label">${l}</span><span class="score-val" style="color:${v?scoreColor(v,inv):'#333'}">${v?v+' / 100':'—'}</span></div>`).join('')}
       </div>
       <div class="card">
         <div class="card-title" style="color:#f87171">Weaknesses</div>
@@ -584,8 +586,8 @@ function buildDatabase() {
         <div style="font-size:12px;color:#ddd;font-weight:600">${r.brand_name||'—'}</div>
         <div style="font-size:11px;color:#888">${r.industry_category||'—'}</div>
         <div><span class="pill" style="background:${classColor(r.brand_personality_classification)}18;border:1px solid ${classColor(r.brand_personality_classification)}44;color:${classColor(r.brand_personality_classification)}">${(r.brand_personality_classification||'—').replace(' Brand','').replace(' (AI + Human)','')}</span></div>
-        <div style="font-size:12px;font-weight:700;color:${scoreColor(r.brand_distinctiveness_score)}">${r.brand_distinctiveness_score||'—'}</div>
-        <div style="font-size:12px;font-weight:700;color:${scoreColor(100-r.ai_dependency_score)}">${r.ai_dependency_score||'—'}</div>
+        <div style="font-size:12px;font-weight:700;color:${scoreColor(r.brand_distinctiveness_score,false)}">${r.brand_distinctiveness_score||'—'}</div>
+        <div style="font-size:12px;font-weight:700;color:${scoreColor(r.ai_dependency_score,true)}">${r.ai_dependency_score||'—'}</div>
         <div style="font-size:10px;color:#444">${r.audit_date||'—'}</div>
       </div>`).join('')}
     </div>
