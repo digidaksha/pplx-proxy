@@ -5,138 +5,127 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Brand Audit — Digidaksha</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#080808;color:#fff;font-family:'Inter',-apple-system,sans-serif;min-height:100vh}
-  input,textarea,button{font-family:inherit}
-  .topbar{border-bottom:1px solid #161616;padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
-  .topbar-left{display:flex;align-items:baseline;gap:12px}
-  .topbar-title{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
-  .topbar-sub{font-size:11px;color:#333}
-  .badge{font-size:10px;background:#4ade8018;border:1px solid #4ade8033;border-radius:3px;padding:2px 8px;color:#4ade80;font-weight:600}
-  .btn-ghost{background:none;border:1px solid #222;border-radius:3px;padding:5px 14px;font-size:10px;color:#555;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
-  .btn-ghost:hover{color:#aaa;border-color:#444}
-  .btn-white{background:#fff;color:#000;border:none;border-radius:4px;padding:12px 36px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
-  .btn-white:disabled{background:#141414;color:#444;cursor:not-allowed}
-  .main{max-width:900px;margin:0 auto;padding:48px 32px}
-  .page-title{font-size:24px;font-weight:300;letter-spacing:-.03em;margin-bottom:6px}
-  .page-sub{font-size:13px;color:#444;margin-bottom:40px}
-  .label{font-size:10px;font-weight:700;letter-spacing:.1em;color:#555;text-transform:uppercase;margin-bottom:6px}
-  .input{width:100%;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:4px;padding:10px 14px;font-size:13px;color:#e0e0e0;outline:none}
-  .input:focus{border-color:#333}
-  .textarea{width:100%;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:4px;padding:10px 14px;font-size:13px;color:#e0e0e0;outline:none;resize:vertical}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-  .full{grid-column:1/-1}
-  .field{margin-bottom:4px}
-  .upload-box{border:1px dashed #2a2a2a;border-radius:4px;padding:14px 16px;cursor:pointer;background:#0a0a0a;display:flex;align-items:center;gap:12px}
-  .upload-box:hover{border-color:#444}
-  .upload-icon{width:44px;height:44px;background:#141414;border:1px solid #222;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#333;font-size:18px;flex-shrink:0}
-  .upload-img{width:44px;height:44px;object-fit:cover;border-radius:2px;flex-shrink:0}
-  .upload-label{font-size:12px;color:#444}
-  .upload-label.ready{color:#aaa}
-  .card{background:#0c0c0c;border:1px solid #1a1a1a;border-radius:6px;padding:24px 28px;margin-bottom:16px}
-  .card-title{font-size:10px;font-weight:700;letter-spacing:.14em;color:#fff;text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #1e1e1e}
-  .tabs{display:flex;gap:0;border:1px solid #1e1e1e;border-radius:4px;overflow:hidden;width:fit-content;margin-bottom:32px}
-  .tab{background:#0d0d0d;color:#555;border:none;padding:9px 18px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
-  .tab.active{background:#fff;color:#000}
-  .section-nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:28px}
-  .sec-btn{background:#0f0f0f;color:#555;border:1px solid #1e1e1e;border-radius:3px;padding:5px 10px;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
-  .sec-btn.active{background:#fff;color:#000;border-color:#fff}
-  .section-card{background:#0c0c0c;border:1px solid #1a1a1a;border-radius:6px;padding:36px 40px;min-height:300px}
-  .section-header{font-size:10px;font-weight:700;letter-spacing:.16em;color:#fff;text-transform:uppercase;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #1e1e1e}
-  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
-  .btn-nav{background:none;border:1px solid #1e1e1e;border-radius:3px;padding:7px 18px;font-size:11px;color:#666;cursor:pointer}
-  .btn-nav:disabled{color:#2a2a2a;cursor:not-allowed}
-  .nav-count{font-size:11px;color:#333}
-  .error{font-size:12px;color:#c0392b;margin-bottom:16px}
-  .loading-msg{font-size:12px;color:#555;margin-top:12px}
-  .score-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #141414}
-  .score-label{font-size:12px;color:#777}
-  .score-val{font-size:12px;font-weight:700}
-  .pill{display:inline-block;border-radius:3px;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-  .weakness{font-size:12px;color:#f87171;margin-bottom:6px;padding-left:10px;border-left:2px solid #f8717144}
-  .strength{font-size:12px;color:#4ade80;margin-bottom:6px;padding-left:10px;border-left:2px solid #4ade8044}
-  /* Markdown rendering */
-  .md h2{font-size:10px;font-weight:700;letter-spacing:.14em;color:#fff;text-transform:uppercase;border-bottom:1px solid #1e1e1e;padding-bottom:10px;margin-top:28px;margin-bottom:14px}
-  .md p{font-size:13px;color:#999;line-height:1.72;margin:5px 0}
-  .md strong{color:#ddd}
-  .md ul{padding-left:16px;margin:8px 0}
-  .md li{font-size:13px;color:#999;margin-bottom:5px;line-height:1.65}
-  .md .bold-line{font-size:12px;font-weight:700;color:#fff;margin:14px 0 4px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-  .score-badge{display:inline-block;border-radius:3px;padding:2px 8px;font-size:11px;font-weight:700}
-  /* DB */
-  .db-table{background:#0c0c0c;border:1px solid #1a1a1a;border-radius:6px;overflow:hidden}
-  .db-header{display:grid;grid-template-columns:1.5fr 1fr 1fr 80px 80px 70px;padding:10px 20px;border-bottom:1px solid #1a1a1a}
-  .db-header span{font-size:9px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.1em}
-  .db-row{display:grid;grid-template-columns:1.5fr 1fr 1fr 80px 80px 70px;padding:12px 20px;border-bottom:1px solid #111;cursor:pointer}
-  .db-row:hover{background:#0f0f0f}
-  .db-row.selected{background:#111}
-  .stat-box{background:#111;border-radius:4px;padding:16px 20px}
-  .stat-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-  .stat-val{font-size:22px;font-weight:300}
-  /* Setup screen */
-  .setup{display:flex;align-items:center;justify-content:center;min-height:100vh}
-  .setup-inner{max-width:460px;width:100%;padding:0 32px}
-  .key-input-row{display:flex;gap:8px}
-  .key-status{font-size:12px;margin-top:10px;padding:10px 14px;border-radius:4px}
-  .key-status.ok{color:#4ade80;background:#4ade8011;border:1px solid #4ade8033}
-  .key-status.err{color:#f87171;background:#f8717111;border:1px solid #f8717133}
-  .key-status.info{color:#facc15;background:#facc1511;border:1px solid #facc1533}
-  .info-box{background:#0d0d0d;border:1px solid #1e1e1e;border-radius:6px;padding:16px 20px;margin-top:20px}
-  .info-row{font-size:12px;color:#666;margin-bottom:6px}
-  .info-row span{color:#999}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080808;color:#fff;font-family:'Inter',-apple-system,sans-serif;min-height:100vh}
+input,textarea,button{font-family:inherit}
+.topbar{border-bottom:1px solid #161616;padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
+.topbar-left{display:flex;align-items:baseline;gap:12px}
+.topbar-title{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+.topbar-sub{font-size:11px;color:#333}
+.badge{font-size:10px;background:#4ade8018;border:1px solid #4ade8033;border-radius:3px;padding:2px 8px;color:#4ade80;font-weight:600}
+.btn-ghost{background:none;border:1px solid #222;border-radius:3px;padding:5px 14px;font-size:10px;color:#555;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.btn-ghost:hover{color:#aaa;border-color:#444}
+.btn-white{background:#fff;color:#000;border:none;border-radius:4px;padding:12px 36px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.btn-white:disabled{background:#141414;color:#444;cursor:not-allowed}
+.main{max-width:900px;margin:0 auto;padding:48px 32px}
+.page-title{font-size:24px;font-weight:300;letter-spacing:-.03em;margin-bottom:6px}
+.page-sub{font-size:13px;color:#444;margin-bottom:40px}
+.label{font-size:10px;font-weight:700;letter-spacing:.1em;color:#555;text-transform:uppercase;margin-bottom:6px}
+.input{width:100%;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:4px;padding:10px 14px;font-size:13px;color:#e0e0e0;outline:none}
+.input:focus{border-color:#333}
+.textarea{width:100%;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:4px;padding:10px 14px;font-size:13px;color:#e0e0e0;outline:none;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.full{grid-column:1/-1}
+.field{margin-bottom:4px}
+.upload-box{border:1px dashed #2a2a2a;border-radius:4px;padding:14px 16px;cursor:pointer;background:#0a0a0a;display:flex;align-items:center;gap:12px}
+.upload-box:hover{border-color:#444}
+.upload-icon{width:44px;height:44px;background:#141414;border:1px solid #222;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#333;font-size:18px;flex-shrink:0}
+.upload-img{width:44px;height:44px;object-fit:cover;border-radius:2px;flex-shrink:0}
+.upload-label{font-size:12px;color:#444}
+.upload-label.ready{color:#aaa}
+.card{background:#0c0c0c;border:1px solid #1a1a1a;border-radius:6px;padding:24px 28px;margin-bottom:16px}
+.card-title{font-size:10px;font-weight:700;letter-spacing:.14em;color:#fff;text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #1e1e1e}
+.tabs{display:flex;gap:0;border:1px solid #1e1e1e;border-radius:4px;overflow:hidden;width:fit-content;margin-bottom:32px}
+.tab{background:#0d0d0d;color:#555;border:none;padding:9px 18px;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
+.tab.active{background:#fff;color:#000}
+.section-nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:28px}
+.sec-btn{background:#0f0f0f;color:#555;border:1px solid #1e1e1e;border-radius:3px;padding:5px 10px;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.sec-btn.active{background:#fff;color:#000;border-color:#fff}
+.section-card{background:#0c0c0c;border:1px solid #1a1a1a;border-radius:6px;padding:36px 40px;min-height:300px}
+.section-header{font-size:10px;font-weight:700;letter-spacing:.16em;color:#fff;text-transform:uppercase;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #1e1e1e}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+.btn-nav{background:none;border:1px solid #1e1e1e;border-radius:3px;padding:7px 18px;font-size:11px;color:#666;cursor:pointer}
+.btn-nav:disabled{color:#2a2a2a;cursor:not-allowed}
+.nav-count{font-size:11px;color:#333}
+.error{font-size:12px;color:#c0392b;margin-bottom:16px}
+.loading-msg{font-size:12px;color:#555;margin-top:12px}
+.score-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #141414}
+.score-label{font-size:12px;color:#777}
+.score-val{font-size:12px;font-weight:700}
+.pill{display:inline-block;border-radius:3px;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.weakness{font-size:12px;color:#f87171;margin-bottom:6px;padding-left:10px;border-left:2px solid #f8717144}
+.strength{font-size:12px;color:#4ade80;margin-bottom:6px;padding-left:10px;border-left:2px solid #4ade8044}
+.md h2{font-size:10px;font-weight:700;letter-spacing:.14em;color:#fff;text-transform:uppercase;border-bottom:1px solid #1e1e1e;padding-bottom:10px;margin-top:28px;margin-bottom:14px}
+.md p{font-size:13px;color:#999;line-height:1.72;margin:5px 0}
+.md strong{color:#ddd}
+.md ul{padding-left:16px;margin:8px 0}
+.md li{font-size:13px;color:#999;margin-bottom:5px;line-height:1.65}
+.md .bold-line{font-size:12px;font-weight:700;color:#fff;margin:14px 0 4px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.score-badge{display:inline-block;border-radius:3px;padding:2px 8px;font-size:11px;font-weight:700}
+.db-table{background:#0c0c0c;border:1px solid #1a1a1a;border-radius:6px;overflow:hidden}
+.db-header{display:grid;grid-template-columns:1.5fr 1fr 1fr 80px 80px 70px;padding:10px 20px;border-bottom:1px solid #1a1a1a}
+.db-header span{font-size:9px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.1em}
+.db-row{display:grid;grid-template-columns:1.5fr 1fr 1fr 80px 80px 70px;padding:12px 20px;border-bottom:1px solid #111;cursor:pointer}
+.db-row:hover{background:#0f0f0f}
+.db-row.selected{background:#111}
+.stat-box{background:#111;border-radius:4px;padding:16px 20px}
+.stat-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.stat-val{font-size:22px;font-weight:300}
 </style>
 </head>
 <body>
-
 <div id="app"></div>
-
 <script>
+
 // ── STATE ─────────────────────────────────────────────────────────────────────
 const state = {
-  view: 'form', // form | results | database
-  pplxKey: 'server',
+  view: 'form',
   form: { brandName:'', website:'', instagram:'', products:'', market:'', priceRange:'', notes:'' },
-  images: { grid: null, homepage: null },
-  previews: { grid: null, homepage: null },
+  images: { grid:null, homepage:null },
+  previews: { grid:null, homepage:null },
   loading: false,
   loadingMsg: '',
   error: '',
-  keyInput: localStorage.getItem('pplx_key') || '',
-  keyStatus: '',
   activeTab: 'audit',
   auditSections: [],
   aiSections: [],
   auditRecord: null,
   auditSection: 0,
   aiSection: 0,
-  db: JSON.parse(localStorage.getItem('brand_db') || '[]'),
-  fullAudits: JSON.parse(localStorage.getItem('full_audits') || '{}'),
+  db: [],
+  dbLoading: false,
   dbQuery: '',
   selectedRecord: null,
   expandedAudit: null,
 };
 
-
-
 // ── PROMPTS ───────────────────────────────────────────────────────────────────
-const AUDIT_PROMPT = `You are a brand growth strategist and revenue auditor. Identify strategic weaknesses, positioning gaps, and revenue leaks. Write in a sharp, founder-facing tone. No jargon.
+const AUDIT_PROMPT = `You are a brand growth strategist and revenue auditor. Write sharp, founder-facing. No jargon. Be concise.
 
-OUTPUT — use exactly these ## headers:
+CRITICAL RULES:
+- Do NOT add any title or intro line before ## 1. BRAND SNAPSHOT
+- Start your response immediately with ## 1. BRAND SNAPSHOT
+- ALL revenue leaks must be inside ## 5. REVENUE LEAK ANALYSIS only
+- Each section max 250 words
+- Use EXACTLY these 10 ## headers and nothing else:
+
 ## 1. BRAND SNAPSHOT
 ## 2. POSITIONING REALITY CHECK
 ## 3. POSITIONING GAP
 ## 4. CONTENT STRATEGY DIAGNOSIS
 ## 5. REVENUE LEAK ANALYSIS
-For each leak: **LEAK:** / **Issue:** / **Why it matters:** / **Estimated impact:** / **Opportunity:**
+List exactly 3 leaks. Each: **LEAK:** name / **Issue:** detail / **Why it matters:** revenue impact / **Estimated impact:** numbers / **Opportunity:** fix
 ## 6. BEHAVIORAL INSIGHT
 ## 7. CATEGORY / MARKET OPPORTUNITY
 ## 8. ONE BOLD CAMPAIGN IDEA
 ## 9. REVENUE UNLOCK ESTIMATE
 ## 10. HOW WE WOULD FIX THIS`;
 
-const AI_PROMPT = `You are a brand diagnostician. Analyze whether the brand is human-led, AI-assisted, or AI-generated. Be analytical, specific.
+const AI_PROMPT = `You are a brand diagnostician. Analyze if the brand is human-led, AI-assisted, or AI-generated. Be analytical and concise, max 150 words per section.
 
-OUTPUT — use exactly these ## headers:
+CRITICAL: Do NOT add any title or intro before ## D1. Start immediately with ## D1.
+Use EXACTLY these ## headers:
+
 ## D1. LANGUAGE GENERICNESS
 **Language Genericness Score: X / 100**
 ## D2. NARRATIVE ORIGINALITY
@@ -150,84 +139,106 @@ OUTPUT — use exactly these ## headers:
 ## AI DEPENDENCY SCORE
 **AI Dependency Score: X / 100**
 ## BRAND PERSONALITY CLASSIFICATION
+CLASSIFICATION: [write exactly one of: Human-Led Brand, Hybrid Brand (AI + Human), AI-Generated Brand]
 ## BRAND DISTINCTIVENESS SCORE
 **Brand Distinctiveness Score: X / 100**
 ## KEY PERSONALITY RISKS
 ## STRATEGIC FIX RECOMMENDATIONS`;
 
-const RECORD_PROMPT = `Return ONLY valid JSON, no markdown, no backticks:
-{"brand_name":"","website":"","instagram":"","industry_category":"","business_model":"","revenue_stage":"","primary_product":"","target_audience":"","competitors":[],"brand_distinctiveness_score":0,"ai_dependency_score":0,"language_genericness_score":0,"narrative_originality_score":0,"visual_authenticity_score":0,"messaging_differentiation_score":0,"human_voice_score":0,"brand_personality_classification":"","strategic_risk_level":"","key_weaknesses":["","",""],"key_strengths":["","",""],"messaging_style":"","narrative_presence":"","visual_identity_style":"","audit_date":""}`;
-
 const AUDIT_LABELS = ['Snapshot','Positioning','Gap','Content','Rev. Leaks','Behavior','Market','Campaign','Rev. Unlock','Fix This'];
 const AI_LABELS = ['Language','Narrative','Visual','Messaging','Human Voice','AI Score','Classification','Distinctiveness','Risks','Fix'];
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function scoreColor(n, invert = false) {
+function scoreColor(n, invert=false) {
   n = parseInt(n);
-  if (invert) return n >= 71 ? '#f87171' : n >= 51 ? '#fb923c' : n >= 31 ? '#facc15' : '#4ade80';
-  return n >= 71 ? '#4ade80' : n >= 51 ? '#facc15' : n >= 31 ? '#fb923c' : '#f87171';
+  if (invert) return n>=71?'#f87171':n>=51?'#fb923c':n>=31?'#facc15':'#4ade80';
+  return n>=71?'#4ade80':n>=51?'#facc15':n>=31?'#fb923c':'#f87171';
 }
 function riskColor(r) { return r==='Low'?'#4ade80':r==='Moderate'?'#facc15':'#f87171'; }
 function classColor(c='') { return c.includes('Human')&&!c.includes('Hybrid')?'#4ade80':c.includes('Hybrid')?'#facc15':'#f87171'; }
 
 function parseSections(text) {
-  // Strip any lines starting with single # (title lines) before first ## section
+  if (!text) return [];
   const lines = text.split('\n');
   const firstDoubleHash = lines.findIndex(l => l.match(/^## /));
   const cleaned = firstDoubleHash >= 0 ? lines.slice(firstDoubleHash).join('\n') : text;
-  return cleaned.split(/(?=^## )/m).filter(s => s.trim()).map(s => {
-    const sLines = s.trim().split('\n');
-    return { header: sLines[0].replace(/^##\s*/, '').trim(), body: sLines.slice(1).join('\n').trim() };
+  return cleaned.split(/(?=^## )/m).filter(s=>s.trim()).map(s=>{
+    const sl = s.trim().split('\n');
+    return { header: sl[0].replace(/^##\s*/,'').trim(), body: sl.slice(1).join('\n').trim() };
   });
 }
 
 function renderMD(text) {
   if (!text) return '';
-  let html = '';
-  const lines = text.split('\n');
-  let i = 0;
-  while (i < lines.length) {
-    const l = lines[i];
-    if (l.startsWith('## ')) {
-      html += `<h2>${l.replace('## ','')}</h2>`;
-    } else if (l.startsWith('**') && l.endsWith('**')) {
-      const content = l.replace(/\*\*/g,'');
-      const m = content.match(/(\d+)\s*\/\s*100/);
-      const badge = m ? `<span class="score-badge" style="background:${scoreColor(m[1])}18;border:1px solid ${scoreColor(m[1])}44;color:${scoreColor(m[1])}">${m[0]}</span>` : '';
-      html += `<div class="bold-line">${content}${badge}</div>`;
-    } else if (l.startsWith('- ') || l.startsWith('* ')) {
-      html += '<ul>';
-      while (i < lines.length && (lines[i].startsWith('- ')||lines[i].startsWith('* '))) {
-        const item = lines[i].slice(2).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
-        html += `<li>${item}</li>`;
+  let html=''; const lines=text.split('\n'); let i=0;
+  while(i<lines.length){
+    const l=lines[i];
+    if(l.startsWith('## ')){
+      html+=`<h2>${l.replace('## ','')}</h2>`;
+    } else if(l.startsWith('**')&&l.endsWith('**')){
+      const content=l.replace(/\*\*/g,'');
+      const m=content.match(/(\d+)\s*\/\s*100/);
+      const badge=m?`<span class="score-badge" style="background:${scoreColor(m[1])}18;border:1px solid ${scoreColor(m[1])}44;color:${scoreColor(m[1])}">${m[0]}</span>`:'';
+      html+=`<div class="bold-line">${content}${badge}</div>`;
+    } else if(l.startsWith('- ')||l.startsWith('* ')){
+      html+='<ul>';
+      while(i<lines.length&&(lines[i].startsWith('- ')||lines[i].startsWith('* '))){
+        html+=`<li>${lines[i].slice(2).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</li>`;
         i++;
       }
-      html += '</ul>';
-      continue;
-    } else if (l.trim()) {
-      const content = l.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
-      html += `<p>${content}</p>`;
+      html+='</ul>'; continue;
+    } else if(l.trim()){
+      html+=`<p>${l.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</p>`;
     }
     i++;
   }
   return html;
 }
 
-function saveState() {
-  localStorage.setItem('brand_db', JSON.stringify(state.db));
-  localStorage.setItem('full_audits', JSON.stringify(state.fullAudits));
+// ── DB FUNCTIONS (Upstash Redis via proxy) ────────────────────────────────────
+async function dbSave(record, auditText, aiText) {
+  try {
+    const res = await fetch('/api/proxy', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ service:'db-save', record, auditText, aiText })
+    });
+    const data = await res.json();
+    return data.key || null;
+  } catch(e) { console.error('DB save error:', e); return null; }
+}
+
+async function dbLoadAll() {
+  try {
+    const res = await fetch('/api/proxy', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ service:'db-load' })
+    });
+    const data = await res.json();
+    return data.records || [];
+  } catch(e) { console.error('DB load error:', e); return []; }
+}
+
+async function dbLoadFull(key) {
+  try {
+    const res = await fetch('/api/proxy', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ service:'db-load-full', key })
+    });
+    const data = await res.json();
+    return data.full || null;
+  } catch(e) { console.error('DB load-full error:', e); return null; }
 }
 
 // ── API CALLS ─────────────────────────────────────────────────────────────────
 async function callClaude(system, content) {
   const res = await fetch('/api/proxy', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ 
-      service:'claude', 
-      model:'claude-haiku-4-5-20251001',
-      max_tokens:4000, 
-      system, 
-      messages:[{role:'user',content}] 
+    body: JSON.stringify({
+      service: 'claude',
+      model: 'claude-haiku-4-5-20251001',  // Fast, cost-efficient
+      max_tokens: 4000,                     // Enough for all 10 sections
+      system,
+      messages: [{ role:'user', content }]
     })
   });
   const data = await res.json();
@@ -238,7 +249,11 @@ async function callClaude(system, content) {
 async function callPerplexity(query) {
   const res = await fetch('/api/proxy', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ model:'sonar', max_tokens:1500, messages:[{role:'user',content:query}] })
+    body: JSON.stringify({
+      model: 'sonar',          // No service field = routes to Perplexity
+      max_tokens: 1500,
+      messages: [{ role:'user', content:query }]
+    })
   });
   const data = await res.json();
   if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
@@ -249,27 +264,26 @@ async function fetchJina(url) {
   if (!url || !url.startsWith('http')) return null;
   try {
     const res = await fetch(`https://r.jina.ai/${url}`, { headers:{'Accept':'text/plain'} });
-    const text = await res.text();
-    return text.slice(0,3000);
+    return (await res.text()).slice(0, 3000);
   } catch { return null; }
 }
 
 function buildContent(extraText, webContent, pplxResearch) {
   const parts = [];
   if (state.images.grid) {
-    parts.push({type:'image',source:{type:'base64',media_type:state.images.grid.type,data:state.images.grid.data}});
-    parts.push({type:'text',text:'Above: Instagram grid screenshot.'});
+    parts.push({ type:'image', source:{ type:'base64', media_type:state.images.grid.type, data:state.images.grid.data } });
+    parts.push({ type:'text', text:'Above: Instagram grid screenshot.' });
   }
   if (state.images.homepage) {
-    parts.push({type:'image',source:{type:'base64',media_type:state.images.homepage.type,data:state.images.homepage.data}});
-    parts.push({type:'text',text:'Above: Website homepage screenshot.'});
+    parts.push({ type:'image', source:{ type:'base64', media_type:state.images.homepage.type, data:state.images.homepage.data } });
+    parts.push({ type:'text', text:'Above: Website homepage screenshot.' });
   }
   const f = state.form;
   let text = `Brand: ${f.brandName}\nWebsite: ${f.website||'N/A'}\nInstagram: ${f.instagram||'N/A'}\nProducts: ${f.products||'N/A'}\nMarket: ${f.market||'N/A'}\nPrice Range: ${f.priceRange||'N/A'}\nNotes: ${f.notes||'None'}\n\n`;
   if (pplxResearch) text += `LIVE BRAND RESEARCH (Perplexity):\n${pplxResearch}\n\n`;
-  if (webContent) text += `LIVE WEBSITE CONTENT:\n${webContent}\n\n`;
+  if (webContent) text += `LIVE WEBSITE CONTENT (Jina):\n${webContent}\n\n`;
   text += extraText;
-  parts.push({type:'text',text});
+  parts.push({ type:'text', text });
   return parts;
 }
 
@@ -279,41 +293,46 @@ function handleImageUpload(key, file) {
   const reader = new FileReader();
   reader.onload = e => {
     const result = e.target.result;
-    state.images[key] = { data: result.split(',')[1], type: file.type };
+    state.images[key] = { data:result.split(',')[1], type:file.type };
     state.previews[key] = result;
     render();
   };
   reader.readAsDataURL(file);
 }
 
+// ── SCORE EXTRACTION ──────────────────────────────────────────────────────────
+function scoreMatch(text, label) {
+  const m = text.match(new RegExp(label + '[^\\d]*(\\d+)\\s*\\/\\s*100','i'));
+  return m ? parseInt(m[1]) : 0;
+}
+
 // ── RUN AUDIT ─────────────────────────────────────────────────────────────────
 async function runAudit() {
-  if (!state.form.brandName.trim()) { state.error = 'Brand name is required.'; render(); return; }
-  state.loading = true; state.error = ''; render();
+  if (!state.form.brandName.trim()) { state.error='Brand name is required.'; render(); return; }
+  state.loading=true; state.error=''; render();
 
   try {
-    state.loadingMsg = 'Researching brand with Perplexity…'; render();
+    // Step 1: Fetch live data
+    state.loadingMsg='Researching brand with Perplexity + Jina…'; render();
     const [webContent, pplxResearch] = await Promise.all([
       fetchJina(state.form.website),
-      state.pplxKey !== 'SKIP' ? callPerplexity(`Research the brand "${state.form.brandName}". Website: ${state.form.website||'unknown'}. Instagram: ${state.form.instagram||'unknown'}. Find: products, pricing, target audience, brand messaging, tone, positioning, competitors, founder story, customer reviews, Instagram content strategy, notable campaigns. Be specific and factual.`) : null,
+      callPerplexity(`Research the brand "${state.form.brandName}". Website: ${state.form.website||'unknown'}. Instagram: ${state.form.instagram||'unknown'}.
+Find specifically: what they sell, pricing, target audience, brand messaging and tone, positioning, key competitors, founder story, customer reviews, Instagram content strategy, notable campaigns. Be specific and factual. Do not generalize.`)
+        .catch(() => null),
     ]);
 
-    state.loadingMsg = 'Running Revenue & Growth Audit + AI Diagnostic…'; render();
+    // Step 2: Run both Claude audits in parallel
+    state.loadingMsg='Running Revenue Audit + AI Diagnostic…'; render();
     const [auditText, aiText] = await Promise.all([
       callClaude(AUDIT_PROMPT, buildContent('Run the full brand revenue and growth audit.', webContent, pplxResearch)),
       callClaude(AI_PROMPT, buildContent('Run the full AI dependency and brand distinctiveness diagnostic.', webContent, pplxResearch)),
     ]);
 
-    state.loadingMsg = 'Generating audit record…'; render();
-    // Build record from already-returned data without extra API call
-    const scoreMatch = (text, label) => {
-      const m = text.match(new RegExp(label + '[^\\d]*(\\d+)\\s*\\/\\s*100', 'i'));
-      return m ? parseInt(m[1]) : 0;
-    };
+    // Step 3: Build record locally from returned text (no extra API call)
     const record = {
       brand_name: state.form.brandName,
-      website: state.form.website,
-      instagram: state.form.instagram,
+      website: state.form.website || '',
+      instagram: state.form.instagram || '',
       industry_category: state.form.products || 'Consumer Brand',
       business_model: 'D2C',
       revenue_stage: 'Growth Stage',
@@ -328,61 +347,65 @@ async function runAudit() {
       messaging_differentiation_score: scoreMatch(aiText, 'Messaging Differentiation'),
       human_voice_score: scoreMatch(aiText, 'Human Voice Presence'),
       brand_personality_classification: (() => {
-        const classMatch = aiText.match(/CLASSIFICATION:\s*(Human-Led Brand|Hybrid Brand \(AI \+ Human\)|AI-Generated Brand)/i);
-        if (classMatch) return classMatch[1];
+        const m = aiText.match(/CLASSIFICATION:\s*(Human-Led Brand|Hybrid Brand \(AI \+ Human\)|AI-Generated Brand)/i);
+        if (m) return m[1];
         if (aiText.includes('Human-Led')) return 'Human-Led Brand';
         if (aiText.includes('Hybrid')) return 'Hybrid Brand (AI + Human)';
         if (aiText.includes('AI-Generated')) return 'AI-Generated Brand';
         return 'Hybrid Brand (AI + Human)';
       })(),
-      strategic_risk_level: auditText.toLowerCase().includes('high risk') ? 'High' : auditText.toLowerCase().includes('low risk') ? 'Low' : 'Moderate',
-      key_weaknesses: (auditText.match(/\*\*LEAK:\*\*\s*([^\n*]+)/g) || []).slice(0,3).map(l => l.replace('**LEAK:**','').trim()),
-      key_strengths: (() => {
-        const snapshotMatch = auditText.match(/## 1\. BRAND SNAPSHOT([\s\S]*?)(?=## 2\.)/);
-        const snapshot = snapshotMatch ? snapshotMatch[1] : auditText;
-        const bullets = snapshot.match(/[-•*]\s+([^\n]+)/g) || [];
-        return bullets.slice(0,3).map(b => b.replace(/^[-•*]\s+/,'').trim());
+      strategic_risk_level: auditText.toLowerCase().includes('high risk')?'High':auditText.toLowerCase().includes('low risk')?'Low':'Moderate',
+      key_weaknesses: (() => {
+        const leakSection = auditText.match(/## 5\. REVENUE LEAK ANALYSIS([\s\S]*?)(?=## 6\.)/);
+        const leakText = leakSection ? leakSection[1] : auditText;
+        return (leakText.match(/\*\*LEAK:\*\*\s*([^\n*]+)/g)||[]).slice(0,3).map(l=>l.replace('**LEAK:**','').replace(/\*\*/g,'').trim());
       })(),
-      messaging_style: auditText.toLowerCase().includes('aspirational') ? 'Aspirational lifestyle messaging' : auditText.toLowerCase().includes('discount') ? 'Discount-driven messaging' : 'Functional product benefits',
-      narrative_presence: aiText.match(/(?:strong|weak|no) (?:founder |brand )?narrative/i)?.[0] || 'Weak narrative',
-      visual_identity_style: aiText.toLowerCase().includes('template') ? 'Template-driven design' : aiText.toLowerCase().includes('distinctive') ? 'Distinctive brand system' : 'Generic stock aesthetic',
+      key_strengths: (() => {
+        const snap = auditText.match(/## 1\. BRAND SNAPSHOT([\s\S]*?)(?=## 2\.)/);
+        const snapText = snap ? snap[1] : '';
+        return (snapText.match(/[-•*]\s+([^\n]+)/g)||[]).slice(0,3).map(b=>b.replace(/^[-•*]\s+/,'').trim());
+      })(),
+      messaging_style: auditText.toLowerCase().includes('aspirational')?'Aspirational lifestyle':auditText.toLowerCase().includes('discount')?'Discount-driven':'Functional product benefits',
+      narrative_presence: (() => {
+        const m = aiText.match(/(?:strong|weak|no)\s+(?:founder\s+)?narrative/i);
+        return m ? m[0] : 'Weak narrative';
+      })(),
+      visual_identity_style: aiText.toLowerCase().includes('template')?'Template-driven design':aiText.toLowerCase().includes('distinctive')?'Distinctive brand system':'Generic stock aesthetic',
       audit_date: new Date().toISOString().split('T')[0],
     };
 
-    // Only save if brand name exists
+    // Step 4: Save to Upstash Redis (shared DB)
+    state.loadingMsg='Saving to shared Intelligence DB…'; render();
     if (record.brand_name) {
-      state.fullAudits[state.form.brandName] = { auditText, aiText, savedAt: new Date().toISOString() };
-      // Remove any existing record for this brand before saving
-      state.db = state.db.filter(r => r.brand_name && r.brand_name !== record.brand_name);
-      state.db.push(record);
-      saveState();
+      const savedKey = await dbSave(record, auditText, aiText);
+      record._key = savedKey;
     }
 
+    // Step 5: Set results state
     state.auditSections = parseSections(auditText);
     state.aiSections = parseSections(aiText);
     state.auditRecord = record;
-    state.auditSection = 0; state.aiSection = 0;
-    state.activeTab = 'audit'; state.view = 'results';
+    state.auditSection = 0;
+    state.aiSection = 0;
+    state.activeTab = 'audit';
+    state.view = 'results';
+
   } catch(e) {
     state.error = 'Something went wrong: ' + e.message;
   }
-  state.loading = false; state.loadingMsg = ''; render();
+  state.loading=false; state.loadingMsg=''; render();
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
-function render() {
-  document.getElementById('app').innerHTML = buildHTML();
-  bindEvents();
-}
+function render() { document.getElementById('app').innerHTML=buildHTML(); }
 
 function buildHTML() {
-  if (state.view === 'setup') return buildSetup();
   return `
     ${buildTopbar()}
     <div class="main">
-      ${state.view==='form' ? buildForm() : ''}
-      ${state.view==='results' ? buildResults() : ''}
-      ${state.view==='database' ? buildDatabase() : ''}
+      ${state.view==='form'?buildForm():''}
+      ${state.view==='results'?buildResults():''}
+      ${state.view==='database'?buildDatabase():''}
     </div>`;
 }
 
@@ -395,44 +418,17 @@ function buildTopbar() {
     </div>
     <div style="display:flex;gap:8px">
       ${state.view!=='form'?'<button class="btn-ghost" onclick="go(\'form\')">New Audit</button>':''}
-      <button class="btn-ghost ${state.view==='database'?'active':''}" onclick="go(\'database\')" style="${state.view==='database'?'background:#fff;color:#000':''}">Intelligence DB</button>
-      <button class="btn-ghost" onclick="testConnection()">Test API</button>
+      <button class="btn-ghost" onclick="go('database')" style="${state.view==='database'?'background:#fff;color:#000':''}">Intelligence DB</button>
+      <button class="btn-ghost" onclick="testAPI()">Test API</button>
     </div>
   </div>`;
 }
 
-function buildSetup() {
-  return `<div class="setup"><div class="setup-inner">
-    <div class="topbar-title" style="margin-bottom:8px">Brand Audit</div>
-    <div class="page-title">API Setup</div>
-    <p style="font-size:13px;color:#555;margin:8px 0 28px;line-height:1.6">Enter your Perplexity API key to enable live brand research. Stored locally in your browser only.</p>
-    <div class="card">
-      <div class="label">Perplexity API Key</div>
-      <div class="key-input-row">
-        <input class="input" id="keyInput" type="password" placeholder="pplx-xxxxxxxxxxxxxxxx" value="${state.keyInput}" oninput="state.keyInput=this.value"/>
-        <button class="btn-ghost" onclick="toggleKeyVis()">Show</button>
-      </div>
-      ${state.keyStatus?`<div class="key-status ${state.keyStatus.startsWith('✓')?'ok':state.keyStatus.startsWith('Testing')?'info':'err'}">${state.keyStatus}</div>`:''}
-      <div style="font-size:11px;color:#444;margin-top:10px">Get your key at perplexity.ai → Settings → API keys</div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn-white" onclick="saveKey()">Save Key →</button>
-      <button class="btn-ghost" onclick="testKey()" style="padding:11px 20px">Test Connection</button>
-      <button class="btn-ghost" onclick="skipKey()" style="padding:11px 20px">Skip</button>
-    </div>
-    <div class="info-box">
-      <div class="label" style="margin-bottom:10px">What each mode does</div>
-      <div class="info-row">✓ <span>With key:</span> Perplexity researches the brand live — real messaging, positioning, competitor data</div>
-      <div class="info-row" style="margin-bottom:0">✓ <span>Without key:</span> Audit runs on screenshots + manual inputs only</div>
-    </div>
-  </div></div>`;
-}
-
 function buildForm() {
-  const f = state.form;
+  const f=state.form;
   return `
     <div class="page-title">New Audit</div>
-    <p class="page-sub">Perplexity will research the brand live. Add screenshots for Instagram analysis.</p>
+    <p class="page-sub">Perplexity researches the brand live. Upload screenshots for Instagram analysis.</p>
     <div class="grid2">
       <div class="full field"><div class="label">Brand Name *</div><input class="input" placeholder="e.g. Mitti Se" value="${f.brandName}" oninput="state.form.brandName=this.value"/></div>
       <div class="field"><div class="label">Website URL</div><input class="input" placeholder="https://brandname.com" value="${f.website}" oninput="state.form.website=this.value"/></div>
@@ -483,14 +479,14 @@ function buildResults() {
       <button class="tab ${state.activeTab==='ai'?'active':''}" onclick="setTab('ai')">AI Diagnostic</button>
       <button class="tab ${state.activeTab==='record'?'active':''}" onclick="setTab('record')">Audit Record</button>
     </div>
-    ${state.activeTab==='audit'?buildSectionView(state.auditSections, state.auditSection, 'auditSection', AUDIT_LABELS):''}
-    ${state.activeTab==='ai'?buildSectionView(state.aiSections, state.aiSection, 'aiSection', AI_LABELS):''}
+    ${state.activeTab==='audit'?buildSectionView(state.auditSections,state.auditSection,'auditSection',AUDIT_LABELS):''}
+    ${state.activeTab==='ai'?buildSectionView(state.aiSections,state.aiSection,'aiSection',AI_LABELS):''}
     ${state.activeTab==='record'?buildRecord(state.auditRecord):''}`;
 }
 
 function buildSectionView(sections, active, key, labels) {
-  if (!sections.length) return '';
-  const s = sections[active];
+  if (!sections.length) return '<div style="color:#444;font-size:13px;padding:40px 0">No sections found.</div>';
+  const s=sections[active];
   return `
     <div class="section-nav">
       ${sections.map((_,i)=>`<button class="sec-btn ${active===i?'active':''}" onclick="setSec('${key}',${i})">${i+1}. ${labels[i]||'—'}</button>`).join('')}
@@ -512,47 +508,63 @@ function buildRecord(r) {
     <div>
       <div class="card">
         <div class="card-title">Brand Info</div>
-        ${[['Brand',r.brand_name],['Industry',r.industry_category],['Model',r.business_model],['Stage',r.revenue_stage],['Audience',r.target_audience]].map(([l,v])=>`
+        ${[['Brand',r.brand_name],['Website',r.website],['Instagram',r.instagram],['Industry',r.industry_category],['Model',r.business_model],['Stage',r.revenue_stage],['Audience',r.target_audience]].map(([l,v])=>`
         <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #111">
-          <span style="font-size:11px;color:#555">${l}</span><span style="font-size:11px;color:#ccc;text-align:right;max-width:60%">${v||'—'}</span>
+          <span style="font-size:11px;color:#555">${l}</span>
+          <span style="font-size:11px;color:#ccc;text-align:right;max-width:60%">${v||'—'}</span>
         </div>`).join('')}
       </div>
       <div class="card">
         <div class="card-title">Classification</div>
         <div style="margin-bottom:10px"><span class="pill" style="background:${classColor(r.brand_personality_classification)}18;border:1px solid ${classColor(r.brand_personality_classification)}44;color:${classColor(r.brand_personality_classification)}">${r.brand_personality_classification||'—'}</span></div>
-        <div style="font-size:11px;color:#555;margin-bottom:6px">Risk: <span class="pill" style="background:${riskColor(r.strategic_risk_level)}18;border:1px solid ${riskColor(r.strategic_risk_level)}44;color:${riskColor(r.strategic_risk_level)}">${r.strategic_risk_level||'—'}</span></div>
-        <div style="font-size:11px;color:#555;margin-top:8px">Narrative: <span style="color:#999">${r.narrative_presence||'—'}</span></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <span style="font-size:11px;color:#555">Risk</span>
+          <span class="pill" style="background:${riskColor(r.strategic_risk_level)}18;border:1px solid ${riskColor(r.strategic_risk_level)}44;color:${riskColor(r.strategic_risk_level)}">${r.strategic_risk_level||'—'}</span>
+        </div>
+        <div style="font-size:11px;color:#555;margin-top:4px">Narrative: <span style="color:#999">${r.narrative_presence||'—'}</span></div>
         <div style="font-size:11px;color:#555;margin-top:4px">Visual: <span style="color:#999">${r.visual_identity_style||'—'}</span></div>
+        <div style="font-size:11px;color:#555;margin-top:4px">Messaging: <span style="color:#999">${r.messaging_style||'—'}</span></div>
       </div>
     </div>
     <div>
       <div class="card">
         <div class="card-title">Scores</div>
-        ${[['Brand Distinctiveness',r.brand_distinctiveness_score,false],['AI Dependency',r.ai_dependency_score,true],['Language Genericness',r.language_genericness_score,true],['Narrative Originality',r.narrative_originality_score,false],['Visual Authenticity',r.visual_authenticity_score,false],['Messaging Differentiation',r.messaging_differentiation_score,false],['Human Voice Presence',r.human_voice_score,false]].map(([l,v,inv])=>`
-        <div class="score-row"><span class="score-label">${l}</span><span class="score-val" style="color:${v?scoreColor(v,inv):'#333'}">${v?v+' / 100':'—'}</span></div>`).join('')}
+        ${[
+          ['Brand Distinctiveness',r.brand_distinctiveness_score,false],
+          ['AI Dependency',r.ai_dependency_score,true],
+          ['Language Genericness',r.language_genericness_score,true],
+          ['Narrative Originality',r.narrative_originality_score,false],
+          ['Visual Authenticity',r.visual_authenticity_score,false],
+          ['Messaging Differentiation',r.messaging_differentiation_score,false],
+          ['Human Voice Presence',r.human_voice_score,false]
+        ].map(([l,v,inv])=>`
+        <div class="score-row">
+          <span class="score-label">${l}</span>
+          <span class="score-val" style="color:${v?scoreColor(v,inv):'#333'}">${v?v+' / 100':'—'}</span>
+        </div>`).join('')}
       </div>
       <div class="card">
         <div class="card-title" style="color:#f87171">Weaknesses</div>
-        ${(r.key_weaknesses||[]).map(w=>`<div class="weakness">· ${w}</div>`).join('')}
+        ${(r.key_weaknesses||[]).map(w=>`<div class="weakness">· ${w}</div>`).join('') || '<div style="font-size:12px;color:#444">None detected</div>'}
         <div class="card-title" style="color:#4ade80;margin-top:16px">Strengths</div>
-        ${(r.key_strengths||[]).map(s=>`<div class="strength">· ${s}</div>`).join('')}
+        ${(r.key_strengths||[]).map(s=>`<div class="strength">· ${s}</div>`).join('') || '<div style="font-size:12px;color:#444">None detected</div>'}
       </div>
     </div>
   </div>`;
 }
 
 function buildDatabase() {
-  const records = state.db;
-  const filtered = records.filter(r => {
+  if (state.dbLoading) return `<div style="text-align:center;padding:80px;font-size:13px;color:#444">Loading Intelligence DB…</div>`;
+  const records = state.db || [];
+  const filtered = records.filter(r=>{
     if (!state.dbQuery.trim()) return true;
-    const q = state.dbQuery.toLowerCase();
+    const q=state.dbQuery.toLowerCase();
     return [r.brand_name,r.industry_category,r.brand_personality_classification,r.strategic_risk_level].some(v=>(v||'').toLowerCase().includes(q));
   });
-  const avg = k => records.length ? Math.round(records.reduce((s,r)=>s+(r[k]||0),0)/records.length) : 0;
-  const counts = {'Human-Led Brand':0,'Hybrid Brand (AI + Human)':0,'AI-Generated Brand':0};
+  const avg = k => records.length?Math.round(records.reduce((s,r)=>s+(r[k]||0),0)/records.length):0;
+  const counts={'Human-Led Brand':0,'Hybrid Brand (AI + Human)':0,'AI-Generated Brand':0};
   records.forEach(r=>{ if(r.brand_personality_classification) counts[r.brand_personality_classification]=(counts[r.brand_personality_classification]||0)+1; });
-
-  const selR = state.selectedRecord !== null ? filtered[state.selectedRecord] : null;
+  const selR = state.selectedRecord!==null?filtered[state.selectedRecord]:null;
   const exp = state.expandedAudit;
 
   return `
@@ -561,7 +573,6 @@ function buildDatabase() {
         <div class="page-title">Brand Intelligence DB</div>
         <div style="font-size:13px;color:#444">${records.length} brand${records.length!==1?'s':''} analyzed</div>
       </div>
-      <button class="btn-ghost" onclick="clearGhosts()" style="font-size:10px">Clean DB</button>
     </div>
     ${records.length===0?`<div class="card" style="text-align:center;padding:60px"><div style="font-size:13px;color:#444">No audits yet. Run your first audit to populate the database.</div></div>`:`
     <div class="card" style="margin-bottom:24px">
@@ -569,8 +580,9 @@ function buildDatabase() {
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px">
         <div class="stat-box"><div class="stat-label">Total Analyzed</div><div class="stat-val" style="color:#fff">${records.length}</div></div>
         <div class="stat-box"><div class="stat-label">Avg Distinctiveness</div><div class="stat-val" style="color:${scoreColor(avg('brand_distinctiveness_score'))}">${avg('brand_distinctiveness_score')}/100</div></div>
-        <div class="stat-box"><div class="stat-label">Avg AI Dependency</div><div class="stat-val" style="color:${scoreColor(100-avg('ai_dependency_score'))}">${avg('ai_dependency_score')}/100</div></div>
-        <div class="stat-box"><div class="stat-label">Brand Types</div>
+        <div class="stat-box"><div class="stat-label">Avg AI Dependency</div><div class="stat-val" style="color:${scoreColor(avg('ai_dependency_score'),true)}">${avg('ai_dependency_score')}/100</div></div>
+        <div class="stat-box">
+          <div class="stat-label">Brand Types</div>
           <div style="font-size:11px;color:#4ade80;margin-top:4px">Human: ${counts['Human-Led Brand']||0}</div>
           <div style="font-size:11px;color:#facc15">Hybrid: ${counts['Hybrid Brand (AI + Human)']||0}</div>
           <div style="font-size:11px;color:#f87171">AI-Gen: ${counts['AI-Generated Brand']||0}</div>
@@ -585,7 +597,7 @@ function buildDatabase() {
       <div class="db-row ${state.selectedRecord===i?'selected':''}" onclick="selectRecord(${i})">
         <div style="font-size:12px;color:#ddd;font-weight:600">${r.brand_name||'—'}</div>
         <div style="font-size:11px;color:#888">${r.industry_category||'—'}</div>
-        <div><span class="pill" style="background:${classColor(r.brand_personality_classification)}18;border:1px solid ${classColor(r.brand_personality_classification)}44;color:${classColor(r.brand_personality_classification)}">${(r.brand_personality_classification||'—').replace(' Brand','').replace(' (AI + Human)','')}</span></div>
+        <div><span class="pill" style="background:${classColor(r.brand_personality_classification)}18;border:1px solid ${classColor(r.brand_personality_classification)}44;color:${classColor(r.brand_personality_classification)};font-size:9px">${(r.brand_personality_classification||'—').replace(' Brand','').replace(' (AI + Human)','')}</span></div>
         <div style="font-size:12px;font-weight:700;color:${scoreColor(r.brand_distinctiveness_score,false)}">${r.brand_distinctiveness_score||'—'}</div>
         <div style="font-size:12px;font-weight:700;color:${scoreColor(r.ai_dependency_score,true)}">${r.ai_dependency_score||'—'}</div>
         <div style="font-size:10px;color:#444">${r.audit_date||'—'}</div>
@@ -594,19 +606,25 @@ function buildDatabase() {
     ${selR?`
     <div class="card" style="margin-top:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-        <div><div style="font-size:14px;font-weight:600;color:#fff">${selR.brand_name}</div><div style="font-size:11px;color:#555">${selR.industry_category||''} · ${selR.audit_date||''}</div></div>
-        <button class="btn-ghost" onclick="toggleExpand('${selR.brand_name}')">${exp?'Close Full Audit':'View Full Audit →'}</button>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#fff">${selR.brand_name}</div>
+          <div style="font-size:11px;color:#555">${selR.industry_category||''} · ${selR.audit_date||''}</div>
+        </div>
+        <button class="btn-ghost" onclick="toggleExpand(${state.selectedRecord})">
+          ${exp?(exp.loading?'Loading…':'Close Full Audit'):'View Full Audit →'}
+        </button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
         <div>
           <div class="label" style="margin-bottom:8px">Scores</div>
-          ${[['Distinctiveness',selR.brand_distinctiveness_score],['AI Dependency',selR.ai_dependency_score],['Narrative',selR.narrative_originality_score],['Visual',selR.visual_authenticity_score],['Human Voice',selR.human_voice_score]].map(([l,v])=>`<div class="score-row"><span class="score-label">${l}</span><span class="score-val" style="color:${v?scoreColor(v):'#333'}">${v||'—'}</span></div>`).join('')}
+          ${[['Distinctiveness',selR.brand_distinctiveness_score,false],['AI Dependency',selR.ai_dependency_score,true],['Narrative',selR.narrative_originality_score,false],['Visual',selR.visual_authenticity_score,false],['Human Voice',selR.human_voice_score,false]].map(([l,v,inv])=>`
+          <div class="score-row"><span class="score-label">${l}</span><span class="score-val" style="color:${v?scoreColor(v,inv):'#333'}">${v||'—'}</span></div>`).join('')}
         </div>
         <div>
           <div class="label" style="margin-bottom:8px;color:#f87171">Weaknesses</div>
-          ${(selR.key_weaknesses||[]).map(w=>`<div class="weakness">· ${w}</div>`).join('')}
+          ${(selR.key_weaknesses||[]).map(w=>`<div class="weakness">· ${w}</div>`).join('') || '<div style="font-size:12px;color:#444">None detected</div>'}
           <div class="label" style="margin-bottom:8px;color:#4ade80;margin-top:14px">Strengths</div>
-          ${(selR.key_strengths||[]).map(s=>`<div class="strength">· ${s}</div>`).join('')}
+          ${(selR.key_strengths||[]).map(s=>`<div class="strength">· ${s}</div>`).join('') || '<div style="font-size:12px;color:#444">None detected</div>'}
         </div>
         <div>
           <div class="label" style="margin-bottom:8px">Profile</div>
@@ -616,22 +634,22 @@ function buildDatabase() {
           <div style="font-size:11px;color:#666">Messaging<br><span style="color:#ccc">${selR.messaging_style||'—'}</span></div>
         </div>
       </div>
-      ${exp?`
+      ${exp&&!exp.loading?`
       <div style="margin-top:28px;border-top:1px solid #1e1e1e;padding-top:24px">
         <div class="tabs" style="margin-bottom:24px">
           <button class="tab ${exp.activeTab==='audit'?'active':''}" onclick="setExpTab('audit')">Revenue & Growth</button>
           <button class="tab ${exp.activeTab==='ai'?'active':''}" onclick="setExpTab('ai')">AI Diagnostic</button>
         </div>
-        ${exp.activeTab==='audit'?buildExpSectionView(exp.auditSections,exp.auditSection,'expAudit',AUDIT_LABELS):''}
-        ${exp.activeTab==='ai'?buildExpSectionView(exp.aiSections,exp.aiSection,'expAI',AI_LABELS):''}
+        ${exp.activeTab==='audit'?buildExpSections(exp.auditSections,exp.auditSection,'expAudit',AUDIT_LABELS):''}
+        ${exp.activeTab==='ai'?buildExpSections(exp.aiSections,exp.aiSection,'expAI',AI_LABELS):''}
       </div>`:''}
     </div>`:''}
     `}`;
 }
 
-function buildExpSectionView(sections, active, key, labels) {
-  if (!sections||!sections.length) return '<div style="font-size:13px;color:#555;padding:20px 0">No saved audit data found for this brand.</div>';
-  const s = sections[active];
+function buildExpSections(sections, active, key, labels) {
+  if (!sections||!sections.length) return '<div style="font-size:13px;color:#555;padding:20px 0">No audit data found.</div>';
+  const s=sections[active];
   return `
     <div class="section-nav">
       ${sections.map((_,i)=>`<button class="sec-btn ${active===i?'active':''}" onclick="setExpSec('${key}',${i})">${i+1}. ${labels[i]||'—'}</button>`).join('')}
@@ -648,87 +666,62 @@ function buildExpSectionView(sections, active, key, labels) {
 }
 
 // ── EVENT HANDLERS ────────────────────────────────────────────────────────────
-function bindEvents() {}
-
-window.go = (view) => {
-  if (view==='database') { state.selectedRecord=null; state.expandedAudit=null; }
-  state.view=view; render();
+window.go = async (view) => {
+  if (view==='database') {
+    state.selectedRecord=null; state.expandedAudit=null;
+    state.view='database'; state.dbLoading=true; render();
+    state.db = await dbLoadAll();
+    state.dbLoading=false;
+  } else {
+    state.view=view;
+  }
+  render();
 };
-window.setTab = (t) => { state.activeTab=t; render(); };
+window.setTab = t => { state.activeTab=t; render(); };
 window.setSec = (key,i) => { state[key]=i; render(); };
-window.setExpTab = (t) => { state.expandedAudit.activeTab=t; render(); };
-window.setExpSec = (key, i) => {
-  if (key==='expAudit') state.expandedAudit.auditSection=i;
+window.setExpTab = t => { state.expandedAudit.activeTab=t; render(); };
+window.setExpSec = (key,i) => {
+  if(key==='expAudit') state.expandedAudit.auditSection=i;
   else state.expandedAudit.aiSection=i;
   render();
 };
-window.handleImg = (key, input) => { if(input.files[0]) handleImageUpload(key, input.files[0]); };
-window.selectRecord = (i) => {
-  state.selectedRecord = state.selectedRecord===i ? null : i;
-  state.expandedAudit = null;
-  render();
+window.handleImg = (key,input) => { if(input.files[0]) handleImageUpload(key,input.files[0]); };
+window.selectRecord = i => {
+  state.selectedRecord = state.selectedRecord===i?null:i;
+  state.expandedAudit=null; render();
 };
-window.toggleExpand = (brandName) => {
-  if (state.expandedAudit) { state.expandedAudit=null; render(); return; }
-  const full = state.fullAudits[brandName];
+window.toggleExpand = async (idx) => {
+  if (state.expandedAudit&&!state.expandedAudit.loading) { state.expandedAudit=null; render(); return; }
+  const r = state.db[idx];
+  if (!r) return;
+  state.expandedAudit = { loading:true, activeTab:'audit', auditSection:0, aiSection:0, auditSections:[], aiSections:[] };
+  render();
+  const full = r._key ? await dbLoadFull(r._key) : null;
   if (full) {
-    state.expandedAudit = { auditSections: parseSections(full.auditText), aiSections: parseSections(full.aiText), activeTab:'audit', auditSection:0, aiSection:0 };
+    state.expandedAudit = {
+      loading:false, activeTab:'audit', auditSection:0, aiSection:0,
+      auditSections: parseSections(full.auditText),
+      aiSections: parseSections(full.aiText),
+    };
   } else {
-    state.expandedAudit = { auditSections:[], aiSections:[], activeTab:'audit', auditSection:0, aiSection:0 };
+    state.expandedAudit=null;
   }
   render();
 };
-window.saveKey = () => {
-  const k = state.keyInput.trim();
-  if (!k.startsWith('pplx-')) { state.keyStatus='✗ Invalid key — should start with pplx-'; render(); return; }
-  localStorage.setItem('pplx_key', k);
-  state.pplxKey = k;
-  state.keyStatus = '';
-  state.view = 'form';
-  render();
-};
-window.skipKey = () => {
-  state.pplxKey='SKIP'; state.view='form'; render();
-};
-window.toggleKeyVis = () => {
-  const inp = document.getElementById('keyInput');
-  if (inp) inp.type = inp.type==='password'?'text':'password';
-};
-window.testKey = async () => {
-  state.keyStatus = 'Testing connection…'; render();
+window.testAPI = async () => {
+  const btn = document.querySelector('[onclick="testAPI()"]');
+  if (btn) { btn.textContent='Testing…'; btn.disabled=true; }
   try {
     const res = await fetch('/api/proxy', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ model:'sonar', max_tokens:30, messages:[{role:'user',content:'Reply: API connection successful'}] })
     });
     const data = await res.json();
-    if (data.choices?.[0]?.message?.content) state.keyStatus = '✓ Proxy works! Perplexity connected.';
-    else if (data.error) state.keyStatus = '✗ Perplexity error: '+(data.error.message||JSON.stringify(data.error));
-    else state.keyStatus = '✗ Unexpected: '+JSON.stringify(data).slice(0,80);
-  } catch(e) { state.keyStatus = '✗ Connection failed: '+e.message; }
-  render();
+    alert(data.choices?.[0]?.message?.content ? '✓ Perplexity connected!' : '✗ Error: '+JSON.stringify(data));
+  } catch(e) { alert('✗ Failed: '+e.message); }
+  if (btn) { btn.textContent='Test API'; btn.disabled=false; }
 };
-window.testConnection = async () => {
-  const btn = document.querySelector('[onclick="testConnection()"]');
-  if (btn) { btn.textContent = 'Testing…'; btn.disabled = true; }
-  try {
-    const res = await fetch('/api/proxy', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ model:'sonar', max_tokens:30, messages:[{role:'user',content:'Reply: API connection successful'}] })
-    });
-    const data = await res.json();
-    if (data.choices?.[0]?.message?.content) {
-      alert('✓ Perplexity connected and working!');
-    } else if (data.error) {
-      alert('✗ Perplexity error: '+(data.error.message||JSON.stringify(data.error)));
-    } else {
-      alert('✗ Unexpected response: '+JSON.stringify(data).slice(0,120));
-    }
-  } catch(e) {
-    alert('✗ Proxy failed: '+e.message);
-  }
-  if (btn) { btn.textContent = 'Test API'; btn.disabled = false; }
-};
+window.runAudit = runAudit;
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 render();
