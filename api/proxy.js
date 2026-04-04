@@ -8,65 +8,66 @@ module.exports = async function handler(req, res) {
 
   try {
     const { service, ...body } = req.body;
+    const kvUrl = process.env.KV_REST_API_URL;
+    const kvToken = process.env.KV_REST_API_TOKEN;
+
+    // ── Helper: get a key from Redis ───────────────────────────────────
+    async function kvGet(key) {
+      const r = await fetch(`${kvUrl}/get/${encodeURIComponent(key)}`, {
+        headers: { Authorization: `Bearer ${kvToken}` },
+      });
+      const d = await r.json();
+      if (!d.result) return null;
+      try { return JSON.parse(d.result); } catch { return d.result; }
+    }
+
+    // ── Helper: set a key in Redis ─────────────────────────────────────
+    async function kvSet(key, value) {
+      await fetch(`${kvUrl}/set/${encodeURIComponent(key)}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ value: JSON.stringify(value) }),
+      });
+    }
 
     // ── DB: save audit record ──────────────────────────────────────────
     if (service === "db-save") {
       const { record, auditText, aiText } = body;
-      const url = process.env.KV_REST_API_URL;
-      const token = process.env.KV_REST_API_TOKEN;
-      if (!url || !token) return res.status(500).json({ error: "DB not configured" });
+      if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
 
-      const key = `audit:${record.brand_name.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+      const key = `audit:${record.brand_name.toLowerCase().replace(/[^a-z0-9]/g, "_")}_${Date.now()}`;
 
-      // Save full audit text
-      await fetch(`${url}/set/${encodeURIComponent(key + ":full")}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ value: JSON.stringify({ auditText, aiText }) }),
-      });
+      // Save full audit text separately
+      await kvSet(key + ":full", { auditText, aiText });
 
       // Save record summary
-      await fetch(`${url}/set/${encodeURIComponent(key)}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ value: JSON.stringify(record) }),
-      });
+      record._key = key;
+      await kvSet(key, record);
 
-      // Maintain index of all audit keys
-      const indexRes = await fetch(`${url}/get/audit:index`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const indexData = await indexRes.json();
-      const index = indexData.result ? JSON.parse(indexData.result) : [];
+      // Update index — safely handle any existing value
+      let index = await kvGet("audit:index");
+      if (!Array.isArray(index)) index = [];
       index.push(key);
-      await fetch(`${url}/set/audit:index`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ value: JSON.stringify(index) }),
-      });
+      await kvSet("audit:index", index);
 
       return res.status(200).json({ success: true, key });
     }
 
     // ── DB: load all records ───────────────────────────────────────────
     if (service === "db-load") {
-      const url = process.env.KV_REST_API_URL;
-      const token = process.env.KV_REST_API_TOKEN;
-      if (!url || !token) return res.status(500).json({ error: "DB not configured" });
+      if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
 
-      const indexRes = await fetch(`${url}/get/audit:index`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const indexData = await indexRes.json();
-      const index = indexData.result ? JSON.parse(indexData.result) : [];
+      let index = await kvGet("audit:index");
+      if (!Array.isArray(index)) index = [];
 
-      const records = await Promise.all(index.map(async (key) => {
-        const r = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const d = await r.json();
-        return d.result ? JSON.parse(d.result) : null;
-      }));
+      const records = await Promise.all(
+        index.map(async (key) => {
+          try {
+            const r = await kvGet(key);
+            return r && typeof r === "object" ? r : null;
+          } catch { return null; }
+        })
+      );
 
       return res.status(200).json({ records: records.filter(Boolean) });
     }
@@ -74,14 +75,8 @@ module.exports = async function handler(req, res) {
     // ── DB: load full audit ────────────────────────────────────────────
     if (service === "db-load-full") {
       const { key } = body;
-      const url = process.env.KV_REST_API_URL;
-      const token = process.env.KV_REST_API_TOKEN;
-
-      const r = await fetch(`${url}/get/${encodeURIComponent(key + ":full")}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const d = await r.json();
-      const full = d.result ? JSON.parse(d.result) : null;
+      if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
+      const full = await kvGet(key + ":full");
       return res.status(200).json({ full });
     }
 
@@ -104,7 +99,7 @@ module.exports = async function handler(req, res) {
       catch { return res.status(500).json({ error: "Claude non-JSON", raw: text.slice(0, 300) }); }
     }
 
-    // ── Perplexity ─────────────────────────────────────────────────────
+    // ── Perplexity (default) ───────────────────────────────────────────
     const pplxKey = process.env.PPLX_API_KEY;
     if (!pplxKey) return res.status(500).json({ error: "Perplexity key not configured" });
 
