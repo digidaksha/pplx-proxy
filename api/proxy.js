@@ -11,23 +11,28 @@ module.exports = async function handler(req, res) {
     const kvUrl = process.env.UPSTASH_KV_REST_API_URL;
     const kvToken = process.env.UPSTASH_KV_REST_API_TOKEN;
 
-    // ── Helper: get a key from Redis ───────────────────────────────────
-    async function kvGet(key) {
-      const r = await fetch(`${kvUrl}/get/${encodeURIComponent(key)}`, {
-        headers: { Authorization: `Bearer ${kvToken}` },
+    // ── Simple Redis helpers using Upstash REST API ────────────────────
+    async function redisCmd(...args) {
+      const r = await fetch(`${kvUrl}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${kvToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(args),
       });
       const d = await r.json();
-      if (!d.result) return null;
-      try { return JSON.parse(d.result); } catch { return d.result; }
+      return d.result;
     }
 
-    // ── Helper: set a key in Redis ─────────────────────────────────────
-    async function kvSet(key, value) {
-      await fetch(`${kvUrl}/set/${encodeURIComponent(key)}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ value: typeof value === 'string' ? value : JSON.stringify(value) }),
-      });
+    async function rGet(key) {
+      const result = await redisCmd("GET", key);
+      if (!result) return null;
+      try { return JSON.parse(result); } catch { return result; }
+    }
+
+    async function rSet(key, value) {
+      await redisCmd("SET", key, typeof value === "string" ? value : JSON.stringify(value));
     }
 
     // ── DB: save audit record ──────────────────────────────────────────
@@ -36,48 +41,32 @@ module.exports = async function handler(req, res) {
       if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
 
       const key = `audit:${record.brand_name.toLowerCase().replace(/[^a-z0-9]/g, "_")}_${Date.now()}`;
-
-      // Save full audit text separately
-      await kvSet(key + ":full", { auditText, aiText });
-
-      // Save record summary
       record._key = key;
-      await kvSet(key, record);
 
-      // Update index — safely handle any existing value
-      let index = await kvGet("audit:index");
+      // Save record and full audit
+      await rSet(key, record);
+      await rSet(`${key}:full`, { auditText, aiText });
+
+      // Update index
+      let index = await rGet("audit:index");
       if (!Array.isArray(index)) index = [];
       index.push(key);
-      await kvSet("audit:index", index);
+      await rSet("audit:index", index);
 
       return res.status(200).json({ success: true, key });
     }
 
-    // ── DB: rebuild index from existing keys ──────────────────────────
-    if (service === "db-rebuild-index") {
-      if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
-      // Scan all keys matching audit:* pattern
-      const r = await fetch(`${kvUrl}/keys/audit:*`, {
-        headers: { Authorization: `Bearer ${kvToken}` },
-      });
-      const d = await r.json();
-      const allKeys = d.result || [];
-      // Filter to only record keys (not :full or :index)
-      const recordKeys = allKeys.filter(k => !k.endsWith(':full') && k !== 'audit:index');
-      // Save rebuilt index
-      await kvSet('audit:index', recordKeys);
-      return res.status(200).json({ success: true, rebuiltIndex: recordKeys });
-    }
+    // ── DB: load all records ───────────────────────────────────────────
     if (service === "db-load") {
       if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
 
-      let index = await kvGet("audit:index");
+      let index = await rGet("audit:index");
       if (!Array.isArray(index)) index = [];
 
       const records = await Promise.all(
         index.map(async (key) => {
           try {
-            const r = await kvGet(key);
+            const r = await rGet(key);
             return r && typeof r === "object" ? r : null;
           } catch { return null; }
         })
@@ -90,8 +79,17 @@ module.exports = async function handler(req, res) {
     if (service === "db-load-full") {
       const { key } = body;
       if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
-      const full = await kvGet(key + ":full");
+      const full = await rGet(`${key}:full`);
       return res.status(200).json({ full });
+    }
+
+    // ── DB: rebuild index ──────────────────────────────────────────────
+    if (service === "db-rebuild-index") {
+      if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
+      const keys = await redisCmd("KEYS", "audit:*");
+      const recordKeys = (keys || []).filter(k => !k.endsWith(":full") && k !== "audit:index");
+      await rSet("audit:index", recordKeys);
+      return res.status(200).json({ success: true, rebuiltIndex: recordKeys });
     }
 
     // ── Claude ─────────────────────────────────────────────────────────
