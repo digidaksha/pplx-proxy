@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
       await fetch(`${kvUrl}/set/${encodeURIComponent(key)}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${kvToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ value: JSON.stringify(value) }),
+        body: JSON.stringify({ value: typeof value === 'string' ? value : JSON.stringify(value) }),
       });
     }
 
