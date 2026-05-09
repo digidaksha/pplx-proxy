@@ -8,8 +8,8 @@ module.exports = async function handler(req, res) {
 
   try {
     const { service, ...body } = req.body;
-    const kvUrl = process.env.KV_REST_API_URL;
-    const kvToken = process.env.KV_REST_API_TOKEN;
+    const kvUrl = process.env.UPSTASH_KV_REST_API_URL;
+    const kvToken = process.env.UPSTASH_KV_REST_API_TOKEN;
 
     // ── Helper: get a key from Redis ───────────────────────────────────
     async function kvGet(key) {
