@@ -53,7 +53,21 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, key });
     }
 
-    // ── DB: load all records ───────────────────────────────────────────
+    // ── DB: rebuild index from existing keys ──────────────────────────
+    if (service === "db-rebuild-index") {
+      if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
+      // Scan all keys matching audit:* pattern
+      const r = await fetch(`${kvUrl}/keys/audit:*`, {
+        headers: { Authorization: `Bearer ${kvToken}` },
+      });
+      const d = await r.json();
+      const allKeys = d.result || [];
+      // Filter to only record keys (not :full or :index)
+      const recordKeys = allKeys.filter(k => !k.endsWith(':full') && k !== 'audit:index');
+      // Save rebuilt index
+      await kvSet('audit:index', recordKeys);
+      return res.status(200).json({ success: true, rebuiltIndex: recordKeys });
+    }
     if (service === "db-load") {
       if (!kvUrl || !kvToken) return res.status(500).json({ error: "DB not configured" });
 
