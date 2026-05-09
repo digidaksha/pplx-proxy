@@ -28,7 +28,14 @@ module.exports = async function handler(req, res) {
     async function rGet(key) {
       const result = await redisCmd("GET", key);
       if (!result) return null;
-      try { return JSON.parse(result); } catch { return result; }
+      // Unwrap {value: "..."} wrapper from old storage format
+      try {
+        const parsed = JSON.parse(result);
+        if (parsed && typeof parsed === 'object' && 'value' in parsed && Object.keys(parsed).length === 1) {
+          try { return JSON.parse(parsed.value); } catch { return parsed.value; }
+        }
+        return parsed;
+      } catch { return result; }
     }
 
     async function rSet(key, value) {
